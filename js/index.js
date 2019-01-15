@@ -518,20 +518,13 @@ function registerEvents(){
 		MIDI.Player.currentTime = parseInt($('#play_slider').val())/100*MIDI.Player.endTime;
 	});
 
-
-	// Set up the event handlers for all the buttons
-	$(".kb").on("mousedown", handlePianoKeyPress)
-	  .on("mouseout", handlePianoKeyRelease)
-	  .on("mouseup", handlePianoKeyRelease);
 }
 
 function use_local_store(){
 	return location.origin=="file://" || location.href.indexOf('http://localhost')>-1;
 }
 function initUI(){
-    var ww = 9, wh = 130;
-	$("#keyboard").css({"height": wh, "width": ww * 104}).html(make_keyboard());
-	$('#mode_panel').html(make_modeboard(["maj","min","aug", "dim", "dom7", "maj7"]));
+    
 
 	appUI = {
 		editor: [['melody','texture'], ['settings','schema', 'harmony',]],
@@ -542,10 +535,6 @@ function initUI(){
 		options_container: '#options_container'
 	};
 	app = new AppMG(appUI);
-	app.keyboard = new keybinder();
-	app.keyboard.bind('#amplitude',keyHandlers[0],keyHandlers[1]);
-	app.drums = new keybinder();
-	app.drums.bind('#drum_amplitude', drumHandlers[0], drumHandlers[1]);
 
 	app.tapper = tapper;
 	// ace editor
@@ -566,7 +555,7 @@ $( document ).ready( function() {
 	
 	MIDI.loadPlugin({
 		soundfontUrl: pre + "soundfont/",
-		instrument: ["acoustic_grand_piano", "percussion"],
+		instrument: ["acoustic_grand_piano"],
 		onprogress: function(state, progress) {
 			//console.log(state, progress);
 		},
@@ -575,8 +564,6 @@ $( document ).ready( function() {
 			MIDI.setVolume(0, 100); // Set the general volume level
 			MIDI.programChange(0, 0);
 			MIDI.programChange(1,0);
-			MIDI.programChange(9,128);
-			MIDI.setVolume(9, 96);
 		}
 	});
 

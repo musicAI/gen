@@ -8,7 +8,6 @@
   ],
   "_js": [
     "gen",
-    "keyboard",
     "index"
   ],
   "stand_alone": true,
