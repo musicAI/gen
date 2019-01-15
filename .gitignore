@@ -1,0 +1,12 @@
+node_modules
+*.log
+coffee/*.js
+coffee/*.map
+.idea
+view/*.html
+app.html
+.DS_Store
+mid
+soundfont
+score/*.pdf
+

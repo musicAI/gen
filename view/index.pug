@@ -1,0 +1,160 @@
+doctype html
+html
+  head
+    title Music Generator
+    script.
+      if (typeof module === 'object') {
+      window.module = module;
+      module = undefined;
+      }
+    include scripts.pug
+    style(type='text/css', media='screen').
+      body {
+        /* Margin bottom by footer height */
+        margin-bottom: 60px;
+        margin-top: 60px;
+      }
+      form {position: relative;}
+      .editor {
+        border: 1px solid #444;
+        /*border-radius: 5px;*/
+        box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.25);
+      }
+  body
+    // Menu
+    include topmenu.pug
+    include bottommenu.pug
+    // Modal
+    #readme.modal.fade(tabindex='-3', role=dialog, aria-hidden='true')
+      .modal-dialog.modal-lg(role='document')
+        .modal-content
+          .modal-header
+            h4.modal-title Read Me
+          .modal-body
+            include:marked ../README.md
+          .modal-footer
+    #tutorial.modal.fade(tabindex='-1', role='dialog', aria-labelledby='myModalLabel', aria-hidden='true')
+      .modal-dialog.modal-lg(role='document')
+        .modal-content
+          .modal-header
+            h4.modal-title Syntax
+          .modal-body
+            include:marked syntax.md
+          .modal-footer
+    #instr.modal.fade(tabindex='-2', role='dialog', aira-hidden='true')
+      .modal-dialog.modl-lg(role='document')
+        .modal-content
+          .modal-header
+            h4.modal-title Instrument Code
+          .modal-body#instr_code
+            #accordion.panel-group
+              each e, i in _instr
+                .panel.panel-default
+                  .panel-heading
+                    h5.panel-title
+                      a(data-toggle='collapse', data-parent='#accordion', href='#collapse_'+ i.replace(' ', '-')) #{i}
+                  panel-collapse.collapse(id='collapse_'+ i.replace(' ', '-'))
+                    .panel-body
+                      ul
+                        each item in e
+                          li #{item}
+
+          .modal.footer
+
+    // Ctrl
+    #ctrl1.modal.fade(tabindex='-2', role='dialog', aria-hidden='true')
+      .modal-dialog.modal-sm(role='')
+        .modal-body
+          input.form-control#ctrl_mul(type="text", placeholder="2")
+          button.btn-default#inc_ctrl(data-dismiss='modal') Multiply
+    #ctrl2.modal.fade(tabindex='-3', role='dialog', aria-hidden='true')
+      .modal-dialog.modal-sm(role='')
+        .modal-body
+          input.form-contral#ctrl_seed(type="text", placeholder="s1")
+          button.btn-default#set_seed(data-dismiss='modal') Set
+    // Contents
+    .container-fluid
+      // Viewer
+      #score_viewer.row
+        // score display
+        .tab-content.col-sr-11.col-xs-12
+          .tab-pane#img_viewer
+            .img-wrapper(style='height: 450px; overflow: scroll')
+              img#score_img.img-responsive(src='')
+          .tab-pane#pdf_viewer
+            #canvas-wrapper(style="height:400px; overflow: scroll;")
+              canvas#the-canvas(style='border:1px solid black')
+            ul.pager#pdf_pager
+              li
+                a.prev.glyphicon.glyphicon-arrow-left
+              li Page:
+                a.page_num 1
+                |  /
+                a.page_count 1
+              li
+                a.next.glyphicon.glyphicon-arrow-right
+
+          .tab-pane.in.active#midi_viewer
+            .canvas-wrapper(style='height: 400px; overflow: scroll; border:1px solid black;')
+              // canvas#midi_pointer(style='width: 100%; height:100%;left: 0; top: 0; z-index:0;')
+              canvas#midi_score(style='width: 100%;left: 0; top: 0; z-index: 1;')
+            ul.pager#midi_pager
+              li
+                #gen.btn.btn-info Generate
+              li
+                #parse.btn.btn-primary Parse
+                |  &nbsp; &nbsp;
+              li
+                a.prev.glyphicon.glyphicon-arrow-left
+              li Page:
+                a.page_num 1
+                |  /
+                a.page_count 1
+              li
+                a.next.glyphicon.glyphicon-arrow-right
+
+
+        .col-sr-1.sr-only
+      // Player
+      .row
+        .col-sr-1.col-xs-1
+          #play_MIDI.btn.btn-info.btn-block
+            span.glyphicon.glyphicon-play
+        .col-sr-6.col-xs-8
+          progress#midi_progress.progress.hidden.progress-info(max='100', value='0', style='width: 100%;') 
+          input#play_slider.progress(type='range', min='0', max='100', value='0') 
+        .col-sr-3.col-xs-2
+          a.pager
+            span#currentTime 0
+            | /
+            span#endTime 0
+
+      // Editor 1
+      .row
+        .col-sr-6.col-xs-10.col-md-6#tracks_container
+          ul.nav.nav-tabs.nav-justified.nav-pills
+            li.xs-only.tab_plus
+              a
+                span.glyphicon.glyphicon-plus
+          .tab-content
+        .xs-only.col-xs-2
+        .col-sr-6.col-xs-10.col-md-6#options_container
+          ul.nav.nav-tabs.nav-justified.nav-pills
+            li.xs-only.tab_plus
+              a
+                span.glyphicon.glyphicon-plus
+          .tab-content
+        .xs-only.col-xs-2
+
+
+
+
+      .row
+    // my js file
+    each item in _coffee
+      script(src='./coffee/' + item + '.js', type='text/javascript')
+    each item in _js
+      script(src="./js/" + item + ".js", type='text/javascript')
+    script.
+      if (window.module) module = window.module;
+      
