@@ -279,13 +279,6 @@ var click_event_list = {
 		});
 
 	},
-	'eg_load_pdf': function(){
-	    var pre = use_local_store()?'':'https://scoreur.github.io/gen/';
-	    load_pdf( pre + 'score/invent.pdf');
-		$('li[data-target="#pdf_viewer"]').click();
-		$.notify('sample PDF loaded!', 'success');
-
-    },
 	'eg_load_midi':function(){
 		MIDI.Player.loadFile('score/sample.mid', function(){
 			$('#endTime').html((MIDI.Player.endTime/1000)>>>0);
@@ -496,16 +489,10 @@ var file_open_handlers = {
 			app.reset(res);
 			click_event_list.parse();
 	    });
-	},
-	'open_pdf': function(evt){
-		var reader = new FileReader();
-        reader.onload = function(e){
-        	load_pdf(e.target.result);
-			$('li[data-target="#pdf_viewer"]').click();
-        };
-		reader.readAsArrayBuffer(evt.target.files[0]);
 	}
 };
+
+
 
 function registerEvents(){
 	for(var i in click_event_list){
@@ -524,7 +511,7 @@ function registerEvents(){
 		}else{
 			//
 		}
-		
+
 	});
 
 	$('#play_slider').on('change', function(){

@@ -37,14 +37,14 @@ module.exports = function(grunt){
                 separator: ';'
             },
             gen: {
-                src: ['js/score_parser.js', 'js/schema_parser.js', 'coffee/musical.js', 'coffee/*.js', 'js/gen.js', 'js/viewer.js', 'js/keyboard.js'],
+                src: ['js/score_parser.js', 'js/schema_parser.js', 'coffee/musical.js', 'coffee/*.js', 'js/gen.js', 'js/keyboard.js'],
                 dest: 'js/gen-build.js'
             }
         },
         uglify: {
             web:{
                 files: {
-                    'js/gen-build.js': ['js/score_parser.js', 'js/schema_parser.js', 'coffee/musical.js', 'coffee/*.js', 'js/gen.js', 'js/viewer.js', 'js/keyboard.js']
+                    'js/gen-build.js': ['js/score_parser.js', 'js/schema_parser.js', 'coffee/musical.js', 'coffee/*.js', 'js/gen.js', 'js/keyboard.js']
                 }
             }
         }
