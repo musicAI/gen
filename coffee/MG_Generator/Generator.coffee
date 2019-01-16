@@ -2,7 +2,7 @@ MG = @MG || (module? && require? && require('./musical').MG) || {}
 
 MG.ref_midi_info = null
 
-parser = MG.schema_parser =  @schema_parser ||  (module? && require? && require('../coffee/schema_parser')) || require('./coffee/schema_parser')
+parser = MG.schema_parser =  @schema_parser ||  (module? && require? && require('../build/schema_parser')) || require('./build/schema_parser')
 
 
 # produce text for parsed obj

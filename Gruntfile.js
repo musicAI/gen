@@ -1,13 +1,21 @@
 
 module.exports = function(grunt){
+    var coffeeTargets = function(pre){
+        return ['score_parser', 'schema_parser', 'musical', '*', 'appMG'].map(function(e){
+            return pre + '/' + e + '.js';
+        });
+    };
+
     grunt.initConfig({
+        pkg: grunt.file.readJSON("package.json"),
+        
         coffee: {
             Parser: {
                 options:{
                     sourceMap: true
                 },
                 files: {
-                    'coffee/ScoreObj.js': ['coffee/MG_Parser/*.coffee']
+                    'build/ScoreObj.js': ['coffee/MG_Parser/*.coffee']
                 }
             },
             Generator: {
@@ -15,7 +23,7 @@ module.exports = function(grunt){
                     sourceMap: true
                 },
                 files: {
-                    'coffee/Generator.js': ['coffee/MG_Generator/*.coffee']
+                    'build/Generator.js': ['coffee/MG_Generator/*.coffee']
 
                 }
 
@@ -25,7 +33,7 @@ module.exports = function(grunt){
                     sourceMap: true
                 },
                 files: {
-                    'coffee/Player.js': ['coffee/MG_Player/*.coffee']
+                    'build/Player.js': ['coffee/MG_Player/*.coffee']
                 }
 
             },
@@ -34,14 +42,14 @@ module.exports = function(grunt){
                     sourceMap: true
                 },
                 files: {
-                    'coffee/ScoreRenderer.js': ['coffee/MG_Renderer/*.coffee']
+                    'build/ScoreRenderer.js': ['coffee/MG_Renderer/*.coffee']
                 }
             },
             multiples: {
                 expand: true,
                 flatten: true,
                 src: ['coffee/*.coffee'],
-                dest: 'coffee/',
+                dest: 'build/',
                 ext: '.js'
             }
 
@@ -70,11 +78,11 @@ module.exports = function(grunt){
             options: { moduleType: "commonjs"},
             score: {
                 options: { moduleName: "score_parser" },
-                files: [{src: 'coffee/MG_Parser/score.jison', dest: 'coffee/score_parser.js'}]
+                files: [{src: 'coffee/MG_Parser/score.jison', dest: 'build/score_parser.js'}]
             },
             schema: {
                 options: { moduleName: "schema_parser" },
-                files: [{src: 'coffee/MG_Parser/schema.jison', dest: 'coffee/schema_parser.js'}]
+                files: [{src: 'coffee/MG_Parser/schema.jison', dest: 'build/schema_parser.js'}]
             }
         },
         concat: {
@@ -82,14 +90,14 @@ module.exports = function(grunt){
                 separator: ';'
             },
             gen: {
-                src: ['coffee/score_parser.js', 'coffee/schema_parser.js', 'coffee/musical.js', 'coffee/*.js', 'coffee/appMG.js', 'js/gen.js'],
+                src: coffeeTargets('build').concat(['js/gen.js']),
                 dest: 'js/gen-build.js'
             }
         },
         uglify: {
             web:{
                 files: {
-                    'js/gen-build.js': ['coffee/score_parser.js', 'coffee/schema_parser.js', 'coffee/musical.js', 'coffee/*.js', 'coffee/appMG.js', 'js/gen.js']
+                    'js/gen-build.js': coffeeTargets('build').concat(['js/gen.js'])
                 }
             }
         }

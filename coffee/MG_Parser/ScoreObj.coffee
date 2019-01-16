@@ -1,7 +1,7 @@
 MG = @MG || (module? && require? && require('./musical').MG) || {}
 
 
-parser = MG.score_parser = @score_parser || (module? && require? && require('../coffee/score_parser')) || require('./coffee/score_parser')
+parser = MG.score_parser = @score_parser || (module? && require? && require('../build/score_parser')) || require('./build/score_parser')
 
 ###
     sample data
