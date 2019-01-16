@@ -135,10 +135,11 @@ class seqPlayer
   saveMidi: ->
     if @raw_midi.length < 1
       return
-    bf = new Uint8Array(@raw_midi.split('').map((e) ->
-      e.charCodeAt 0
-    ))
-    saveAs new Blob([ bf ], type: 'audio/midi'), 'sample.mid'
+    # bf = new Uint8Array(@raw_midi.split('').map((e) ->
+    #   e.charCodeAt 0
+    # ))
+    # saveAs new Blob([bf], type: 'audio/midi'), 'sample.mid'
+    saveAs MG.str2blob(@raw_midi, 'audio/midi'), 'sample.mid'
     return
 
 class Analyzer

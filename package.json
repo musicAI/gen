@@ -5,7 +5,7 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "build": "coffee -m -c ./coffee/; grunt; grunt app; grunt web"
+    "build": "grunt; grunt app; grunt web"
   },
   "repository": {
     "type": "git",
@@ -25,9 +25,10 @@
   "devDependencies": {
     "electron": "^4.0.1",
     "grunt": "^1.0.3",
+    "grunt-contrib-coffee": "^1.0.0",
     "grunt-contrib-concat": "1.0.1",
     "grunt-contrib-pug": "^2.0.0",
-    "grunt-contrib-uglify": "1.0.1",
+    "grunt-contrib-uglify": "^1.0.1",
     "grunt-jison": "1.3.3",
     "jstransformer-marked": "^1.0.3"
   },

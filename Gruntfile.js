@@ -1,6 +1,42 @@
 
 module.exports = function(grunt){
     grunt.initConfig({
+        coffee: {
+            Parser: {
+                options:{
+                    sourceMap: true
+                },
+                files: {
+                    'coffee/ScoreObj.js': ['coffee/MG_Parser/*.coffee']
+                }
+            },
+            Generator: {
+                options:{
+                    sourceMap: true
+                },
+                files: {
+                    'coffee/Generator.js': ['coffee/MG_Generator/*.coffee']
+
+                }
+
+            },
+            Renderer: {
+                options:{
+                    sourceMap: true
+                },
+                files: {
+                    'coffee/ScoreRenderer.js': ['coffee/MG_Renderer/*.coffee']
+                }
+            },
+            multiples: {
+                expand: true,
+                flatten: true,
+                src: ['coffee/*.coffee'],
+                dest: 'coffee/',
+                ext: '.js'
+            }
+
+        },
         pug: {
             options: {
                 client: false,
@@ -49,11 +85,12 @@ module.exports = function(grunt){
             }
         }
     });
+    grunt.loadNpmTasks('grunt-contrib-coffee');
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-pug');
     grunt.loadNpmTasks('grunt-jison');
     grunt.loadNpmTasks('grunt-contrib-uglify');
-    grunt.registerTask('default', ['jison:score', 'jison:schema']);
+    grunt.registerTask('default', ['coffee:Parser', 'coffee:Generator', 'coffee:Renderer', 'coffee:multiples', 'jison:score', 'jison:schema']);
     grunt.registerTask('web', ['pug:web', 'uglify:web']);
     grunt.registerTask('app', ['pug:app']);
 
