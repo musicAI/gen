@@ -4,6 +4,7 @@
     "ScoreObj",
     "Generator",
     "ScoreRenderer",
+    "Player",
     "appMG"
   ],
   "_js": [

@@ -1,5 +1,7 @@
 MG = @MG || (module? && require? && require('./musical').MG) || {}
-parser = MG.score_parser
+
+
+parser = MG.score_parser = @score_parser || (module? && require? && require('../coffee/score_parser')) || require('./coffee/score_parser')
 
 ###
     sample data
@@ -144,244 +146,173 @@ MG.score_dance =
       "@13 13 0,2",
       ""]
 
-###
-  measure with data(pitch, dur) and properties
-###
-class @Measure
-  constructor: (@time_sig, @tatum)->
-    @pitch = []
-    @dur = []
-    @time_sig ?= [4,4]
-    @tatum ?= 8
 
-  copy: (measure)->
-    # copy this measure
-    if(arguments.length == 0)
-      measure = new Measure(MG.clone(@time_sig), @tatum)
-      measure.pitch = MG.clone(@pitch)
-      measure.dur = MG.clone(@dur)
-      MG.condCopy(@, measure, ['tie', 'incomplete_start', 'harmony'])
-      return measure
-    # copy from other measure
-    @time_sig = MG.clone(measure.time_sig)
-    @tatum = measure.tatum
-    @pitch = MG.clone(measure.pitch)
-    @dur = MG.clone(measure.dur)
-    MG.condCopy(measure, @, ['tie','incomplete_start', 'harmony'])
-
-  add: (pitch, dur)->
-    @pitch.push pitch
-    @dur.push dur
+# @return: array of measures with info
+# TODO: to Snippet with settings
+MG.parseMelody = (m, options)->
+  try
+    obj = MG.score_parser.parse(m.join('\n')+'\n')
+  catch e
+    $.notify('parsing error!', 'warning')
+    console.log e.message
     return
 
-  # get note
-  note: (i)->
-    [@dur[i], @pitch[i]]
-  last: ->
-    @note(@len() - 1)
-  first: ->
-    @note(0)
+  #console.log 'parse melody', options
+  ornamental = (pitch, ref, scale)->
+    p = if typeof pitch is 'number' then pitch else pitch.original
+    if p > scale.length
+      console.log 'exceed scale length'
+      p = scale.length
+    else if p == 0
+      # rest
+      return 0
+    p = ref + scale[p-1]
+    if typeof pitch isnt  'number'
+      pitch.ornament.forEach (e)->
+        if typeof e == 'number'
+          p += e
+    return p
 
-  setNote: (i, note)->
-    @dur[i] = note[0]
-    @pitch[i] = note[1]
+  switch obj.mode
+    when 'melody'
+      {scale, init_ref, harmony} = options
+    when 'harmony'
+      harmony = options.harmony
 
-  len: ->
-    @dur.length
+  tatum = options.ctrl_per_beat * options.time_sig[0]
+  refc = null
+  chorder = MG.harmony_progresser(harmony)
+  # do something
+  # 1 set up states
+  scale ?= MG.scale_class['maj']
+  tempo_map = {0:options.tempo}
+  key_sig_map = {0:options.key_sig}
+  time_sig_map = {0:options.time_sig}
 
-  incomplete: ->
-    return math.sum(@dur) < @tatum * @time_sig[0]
-  overflow: ->
-    return math.sum(@dur) > @tatum * @time_sig[0]
-  # get pitch at pos, not tested yet
-  pos: (beat, tatum)->
-    if @dur.length == 0
-      return null
-    tatum ?= 0
-    offset = beat * @tatum + tatum
-    d_i = 0
-    while d_i < @dur.length && offset > 0
-      offset -= @dur[d_i]
-      d_i++
-    if offset < 0
-      d_i--
+  init_ref ?= MG.keyToPitch(options.key_sig + '4') ? 60 # C4
+  ref = init_ref
+  # 2 iterate obj.data
+  res = obj.data.map (m,i)->
+    #console.log 'parse measure', i
+    measure = []
+    dur_tot = 0
 
-    if d_i >= @dur.length
-      d_i = @dur.length - 1
-    return @pitch[d_i]
-
-###
-  snippet
-  data: array of measures
-###
-class @Snippet
-  constructor: (pitch, dur, harmony, options)->
-    if arguments.length == 0
-      @data = []
-      return
-    while typeof dur[0] != 'number'
-      dur = _.flatten(dur, true)
-      pitch = _.flatten(pitch, true)
-
-    tatum = options.tatum ? 8
-    time_sig = options.time_sig ? [4,4]
-    sec = tatum * time_sig[0]
-
-    MG.condCopy(options, @, ['incomplete_start', 'tie'])
-
-    delta = @incomplete_start ? sec
-
-    m_i = 0
-    measure = new Measure(time_sig, tatum)
-    res = []
-    dur.forEach (e,i)=>
-
-      if delta - e >= 0
-        measure.pitch.push pitch[i]
-        measure.dur.push e
-        delta -= e
-        if delta == 0
-          measure.harmony = harmony[m_i]
-          res.push measure
-          m_i++
-          measure = new Measure(time_sig, tatum)
-
-
-          delta = sec
-      else #tie
-        while delta < e
-          measure.dur.push delta
-          measure.pitch.push pitch[i]
-          measure.tie = true
-          measure.harmony = harmony[m_i]
-          res.push measure
-          e -= delta
-          delta = sec
-          measure = new Measure(time_sig, tatum)
-          m_i++
-    if delta < sec
-      @incomplete_end = sec - delta
-      measure.harmony = harmony[m_i]
-      res.push measure
-    @data = res
-    return
-  last: ->
-    if @data.length == 0
-      return null
-    @data[@data.length - 1]
-  first: ->
-    if @data.length == 0
-      return null
-    @data[0]
-  copy: (s)->
-    if arguments.length == 0
-      s = new Snippet()
-      s.data = @data.map (e)-> e.copy()
-      MG.condCopy(@, s, ['incomplete_start', 'tie'])
-      return s
-
-    @data = s.data.map (e)-> e.copy()
-    MG.condCopy(s, @, ['incomplete_start', 'tie'])
-
-
-
-  # concat with other snippet
-  join: (s, modify)->
-    ret = @copy()
-    s = s.copy()
-
-    if ret.data.length > 0
-      if modify? && modify.smooth?
-        last_measure = ret.last()
-        first_measure = s.first()
-        console.log 'new smooth', last_measure, first_measure
-        last_note = last_measure.last()
-        first_note = first_measure.first()
-        if last_measure.len() > 1
-          pre_note = last_measure.note(last_measure.len() - 2)
-          if (last_note[1] > pre_note[1] && last_note[1] > first_note[1]) || (last_note[1] < pre_note[1] && last_note[1] < first_note[1])
-            # swap, make smooth
-            last_measure.setNote(last_measure.len() - 2, last_note)
-            last_note = pre_note
-            pre_note = last_measure.note(last_measure.len() - 2)
-
-        if last_note[1] - first_note[1] <= -12
-          last_note[1] += 12
-        else if last_note[1] - first_note[1] >= 12
-          last_note[1] -= 12
-        #console.log i, last_note, first_note
-        last_measure.setNote(last_measure.len() - 1, last_note)
-        console.log 'smooth', last_measure, first_measure
-
-      tmp = ret.data.pop()
-      measure = null
-      if @incomplete_end? && s.incomplete_start?
-        measure = new Measure()
-        measure.harmony = MG.clone(tmp.harmony)
-        measure.harmony ?= []
-        measure.pitch = tmp.pitch.concat(s.data[0].pitch)
-        measure.dur = tmp.dur.concat(s.data[0].dur)
-
-        if s.data[0].harmony?
-          measure.harmony = measure.harmony.concat(s.data[0].harmony)
-        if s.data[0].tie? && s.data[0].tie == true
-          measure.tie = s.data[0].tie
-        s.data.shift()
+    durs = []
+    m.forEach (e)->
+      if e.ctrl?
+        if e.t?
+          tatum = e.t[0] * options.ctrl_per_beat
       else
-        measure = tmp.copy()
-      ret.data.push measure
+        if typeof e.dur == 'number'
+          dur_tot += e.dur
+          durs.push e.dur
+        else
+          dur_tot += e.dur.original
+          durs.push e.dur.original
+    # renormalize
+    r = tatum // dur_tot
+    # TODO: check integer
+    dur_tot = 0
+    m.forEach (e)->
+      if not e.ctrl?
+        if typeof e.dur == 'number'
+          e.dur *= r
+          dur_tot += e.dur
+        else
+          e.dur.original *= r
+          dur_tot += e.dur.original
 
-    ret.data = ret.data.concat(s.data)
-    MG.condCopy(s, ret, ['incomplete_end'])
-    console.log 'join snippet', ret.data, modify
+    m.forEach (e)->
 
-    return ret
+      if e.ctrl?
+        # set options
+        switch e.ctrl
+          when 'reset'
+            ref = init_ref
+          when 'normal','repeat_start'
+            for k,v of e
+              switch k
+                when 't' # set time_sig
+                  time_sig_map[i] = v
+                when 's' then scale = MG.scale_class[v]
+                when 'k'  # set key_sig
+                  key_sig_map[i] = v
+                  ref = init_ref = MG.keyToPitch(v+4)
+                when 'r' # set tempo
+                  tempo_map[i] = v
+                when 'v' then 1 # set volume
+                when 'o' then 1 # set output instrument
+                when 'i' then 1 # inverse chord
+                when 'p' then ref += v
+          when 'chord'
+            ref = MG.keyToPitch('C3') # 48
+            chorder.process()
+            bass = chorder.bass(e.inv)
+            chord = chorder.chord(e.inv)
 
+            ref += e.transpose
+            bass += ref
+            refc = e.pitch.map (p)->
+              return ornamental(p,bass,chord)
+      else
+        # add notes
+        pitches = []
+        e.pitch.forEach (p)->
 
-  cadence: (key)->
-    last_measure = @last()
-    last_measure.dur.sort()
-    tonic = MG.key_class[key]
-    last_note = last_measure.last()
-    adjust = (tonic - (last_note[1] % 12)) %% 12
-    if adjust > 6
-      adjust -= 12
-    last_note[1] += adjust
-    console.log adjust, 'adjust->', last_note
-    if last_measure.len() > 1
-      pre_note = last_measure.note(last_measure.len() - 2)
+          if typeof p == 'string'
+          # handle barline
+          else if refc?
+            if refc[p-1]?
+              pitches.push(refc[p-1])
+          else
+            pitches.push(ornamental(p, ref, scale))
+        #console.log 'add pitch', pitches
+        if typeof e.dur == 'number'
+          measure.push([e.dur, pitches])
+          chorder.forward(e.dur)
 
-      #console.log 'pre_note', pre_note
-      if last_note[1] - pre_note[1] >= 12
-        last_note[1] -= 12;
-      if last_note[1] == pre_note[1]
-        #console.log 'may merge last two notes', last_note
-        return
-    last_measure.setNote(last_measure.len() - 1, last_note)
-  toScore: (key_sig)->
-    key_sig ?= 'C'
-    sharp = MG.key_sig[key_sig] >= 0
-    @data.map (measure)->
+        else
+          measure.push([e.dur.original, pitches, true]);
+          chorder.forward(e.dur.original)
+    if dur_tot < tatum
+      console.log 'not enough'
+      measure[measure.length - 1][0] += (tatum - dur_tot)
+    return measure
+  # TODO: move info to tracks
+  res.info = {
+    time_sigs: time_sig_map,
+    key_sigs: key_sig_map,
+    tempi: tempo_map
+  }
+  return res
 
-      ret = _.zip(measure.dur, measure.pitch)
-      if measure.tie? && measure.tie = true
-        ret[ret.length - 1].push(true)
-      measure.harmony ?= []
-      durs = measure.harmony.map (e)-> e[0]
-      gcd = MG.gcd.apply(null, durs)
-      if gcd > 1
-        measure.harmony.forEach (e)->
-          e[0] /= gcd
-      ret.harmony = (measure.harmony.map (e)->
-        tmp = MG.pitchToKey(e[1],sharp,true) + e[2]
-        if e[0] > 1
-          tmp += ',' + e[0]
-        tmp
-      ).join(' ')
-      ret
-
-
-
+# info must contain time_sigs, ctrl_per_beat
+MG.parseHarmony = (measures, info) ->
+  if typeof measures == 'undefined'
+    console.log 'empty harmony'
+    return
+  key_sig = info.key_sigs[0] ? 'C'
+  tatum = info.ctrl_per_beat * (info.time_sigs[0][0] ? 4)
+  measures.map (e, i) ->
+    if info.time_sigs[i]?
+      tatum = info.ctrl_per_beat * info.time_sigs[i][0]
+    if info.key_sigs[i]?
+      key_sig = info.key_sigs[i]
+    durs = []
+    ret = e.trim().split(/\s+/).map (e2) ->
+      terms = e2.split(',')
+      chord_info = MG.getChords(terms[0],3,key_sig)
+      dur =  if terms.length>=2 then parseInt(terms[1]) else 1
+      durs.push dur
+      [dur,chord_info[0],chord_info[1]]
+    if tatum?
+      r = tatum // math.sum(durs)
+      durs = []
+      ret.forEach (ee,ii)->
+        durs.push(ret[ii][0] = Math.floor(ee[0] * r))
+      if tatum > math.sum(durs)
+        ret[ret.length - 1][0] += (tatum - math.sum(durs))
+    ret
 
 ###
   score object, with tracks and settings

@@ -2,7 +2,72 @@ MG = @MG || (module? && require? && require('./musical').MG) || {}
 
 MG.ref_midi_info = null
 
-parser = MG.schema_parser
+parser = MG.schema_parser =  @schema_parser ||  (module? && require? && require('../coffee/schema_parser')) || require('./coffee/schema_parser')
+
+
+# produce text for parsed obj
+MG.schema_parser.produce = (obj)->
+  produceVar = (o, indent)->
+    indent ?= ''
+    ret = ''
+    tmp = []
+    if Array.isArray(o)
+      ret += '[\n'
+      indent += '  '
+      for k in o
+        tmp.push indent + produceVar(k, indent)
+      ret += tmp.join(',\n')
+      indent = indent.substr(2)
+      ret += '\n' + indent + ']'
+    else if typeof o == 'object'
+      ret = '{\n'
+      indent += '  '
+      for k,v of o
+        if k == 'mode'
+          tmp.push indent + v.toString()
+        else
+          tmp.push indent + k + ' : ' + produceVar(v, indent)
+      ret += tmp.join(',\n')
+      indent = indent.substr(2)
+      ret += '\n' + indent + '}'
+    else if typeof o == 'string'
+      ret += '"' + o + '"'
+    else
+      ret += o.toString()
+    ret
+
+
+  produce = (nodes, indent)->
+    indent ?= ''
+    ret = ''
+    indent += '  ' # indent two spaces
+    for k,v of nodes
+      #console.log k
+      if v.structure?
+        ret += indent + k + ' -> '
+        if v.node? && Object.keys(v.node).length > 0
+          ret += '{\n'
+          ret += produce(v.node, indent)
+          ret += indent + '}'
+        ret += '\n'
+        #console.log v.structure
+        v.structure.forEach (e, i)->
+          ret += indent + e + ' '
+          if v.action?
+            tgt = v.action[e] ? v.action["_#{i}_#{e}"]
+            if tgt?
+              ret += produceVar(tgt, indent) #nodes.action[k].toString()
+          ret += '\n'
+        ret += indent + ';\n'
+      else
+        ret += indent + k + ' = '
+        ret += produceVar(v, indent) + ';\n'
+    indent = indent.substr(2) # unindent
+    return ret
+
+  indent = ''
+  produce(obj, indent)
+
 
 ###
   generating music from schema

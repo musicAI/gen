@@ -2,11 +2,12 @@ node_modules
 *.log
 coffee/*.js
 coffee/*.map
+*.src.coffee
 .idea
 view/*.html
 app.html
 .DS_Store
 mid
 soundfont
-score/*.pdf
+build
 

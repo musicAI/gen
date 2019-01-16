@@ -20,6 +20,15 @@ module.exports = function(grunt){
                 }
 
             },
+            Player: {
+                options:{
+                    sourceMap: true
+                },
+                files: {
+                    'coffee/Player.js': ['coffee/MG_Player/*.coffee']
+                }
+
+            },
             Renderer: {
                 options:{
                     sourceMap: true
@@ -61,11 +70,11 @@ module.exports = function(grunt){
             options: { moduleType: "commonjs"},
             score: {
                 options: { moduleName: "score_parser" },
-                files: [{src: 'js/score.jison', dest: 'js/score_parser.js'}]
+                files: [{src: 'coffee/MG_Parser/score.jison', dest: 'coffee/score_parser.js'}]
             },
             schema: {
                 options: { moduleName: "schema_parser" },
-                files: [{src: 'js/schema.jison', dest: 'js/schema_parser.js'}]
+                files: [{src: 'coffee/MG_Parser/schema.jison', dest: 'coffee/schema_parser.js'}]
             }
         },
         concat: {
@@ -73,14 +82,14 @@ module.exports = function(grunt){
                 separator: ';'
             },
             gen: {
-                src: ['js/score_parser.js', 'js/schema_parser.js', 'coffee/musical.js', 'coffee/*.js', 'js/gen.js'],
+                src: ['coffee/score_parser.js', 'coffee/schema_parser.js', 'coffee/musical.js', 'coffee/*.js', 'coffee/appMG.js', 'js/gen.js'],
                 dest: 'js/gen-build.js'
             }
         },
         uglify: {
             web:{
                 files: {
-                    'js/gen-build.js': ['js/score_parser.js', 'js/schema_parser.js', 'coffee/musical.js', 'coffee/*.js', 'js/gen.js']
+                    'js/gen-build.js': ['coffee/score_parser.js', 'coffee/schema_parser.js', 'coffee/musical.js', 'coffee/*.js', 'coffee/appMG.js', 'js/gen.js']
                 }
             }
         }
@@ -90,7 +99,7 @@ module.exports = function(grunt){
     grunt.loadNpmTasks('grunt-contrib-pug');
     grunt.loadNpmTasks('grunt-jison');
     grunt.loadNpmTasks('grunt-contrib-uglify');
-    grunt.registerTask('default', ['coffee:Parser', 'coffee:Generator', 'coffee:Renderer', 'coffee:multiples', 'jison:score', 'jison:schema']);
+    grunt.registerTask('default', ['coffee:Parser', 'coffee:Generator', 'coffee:Renderer', 'coffee:Player', 'coffee:multiples', 'jison:score', 'jison:schema']);
     grunt.registerTask('web', ['pug:web', 'uglify:web']);
     grunt.registerTask('app', ['pug:app']);
 
