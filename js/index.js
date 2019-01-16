@@ -267,7 +267,7 @@ var click_event_list = {
 
 	},
 	'eg_load_json':function(){
-		$.ajax('score/sample.json').done(function(res){
+		$.ajax('static/sample.json').done(function(res){
 
 			var obj = typeof res == 'string'? JSON.parse(res): res;
 			if(typeof obj != 'object'){
@@ -280,7 +280,7 @@ var click_event_list = {
 
 	},
 	'eg_load_midi':function(){
-		MIDI.Player.loadFile('score/sample.mid', function(){
+		MIDI.Player.loadFile('static/sample.mid', function(){
 			$('#endTime').html((MIDI.Player.endTime/1000)>>>0);
 			$.notify('sample MIDI loaded!', 'success');
 		})
@@ -538,7 +538,7 @@ function initUI(){
 
 	app.tapper = tapper;
 	// ace editor
-	//$('#score_img').attr('src','./score/summertime.png');
+	//$('#score_img').attr('src','./static/summertime.png');
 	$( "#tracks_resizable" ).resizable({
 		handles: "s",
 		resize: function() {
