@@ -10,10 +10,10 @@ The app is targeted at both web and desktop.
 * Incorporate structural information into music composition, generating good melody and harmony.
 
 ### User Interface
-* Viewer (support pdf, image or rendered from score input).
+* Viewer (image or rendered from score input).
 * Editors for melody, harmony, texture, score settings and schema
 * Buttons (generate, parse, play, etc)
-* Top Menu: File, Edit, View, Examples (json/midi/pdf)
+* Top Menu: File, Edit, View, Examples (json/midi)
 * Bottom Menu: Keyboard, Console, Tutorial, Instrument List
 
 ### Illustrative Workflow
@@ -48,7 +48,7 @@ Utilities
 ---------
 
 * MIDI: open MIDI file, quantize, analyze, render as score, save as wav/mp3
-* keyboard: `a, s, d, f, j, k, l, ;` correponds to `C, D, E, F, G, A, B` as the white keys, and the black keys are `w, e, u, i, o` which have similar positions as on the piano keyboard.
+* keyboard: `a, s, d, f, j, k, l, ;` correponds to `C, D, E, F, G, A, B` as the white keys, and the black keys are `w, e, u, i, o` which have similar positions as on the piano keyboard. (moved to `midiKeyboard` project)
 
 
 Development Guide
