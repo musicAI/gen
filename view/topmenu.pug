@@ -26,12 +26,12 @@ nav#top-menu.navbar.navbar-default.navbar-fixed-top
             li
               a#open_json Import JSON
             li
-              a#export Export JSON
+              a#export Save JSON
             li.divider(role='separator')
             li
-              a#open_img Open Score Image
+              a#open_img Open Image
             li
-              a#save_score Save Rendered Score
+              a#save_score Save Image
         // Menu Edit
         li.dropdown
           a.dropdown-toggle(data-toggle='dropdown', role='button', aria-haspopup='true', aria-expanded='false') Edit
@@ -46,9 +46,9 @@ nav#top-menu.navbar.navbar-default.navbar-fixed-top
             li
               a(data-toggle='modal', data-target='#ctrl1', href='#ctrl1') Increase Controls
             li
-              a#harmony_absolute Harmony in Note Name
+              a#harmony_absolute Chords in Note Name
             li
-              a#harmony_relative Harmony in Scale Degree
+              a#harmony_relative Chords in Scale Degree
         // Menu View
         li.dropdown
           a.dropdown-toggle(data-toggle='dropdown', role='button', aria-haspopup='true', aria-expanded='false') View
@@ -83,10 +83,25 @@ nav#top-menu.navbar.navbar-default.navbar-fixed-top
             span.caret
           ul.dropdown-menu
             li
-              a(href='https://github.com/scoreur/gen') Source Code
+              a(href='https://github.com/scoreur/gen' target="_blank") Source Code
             li.divider(role='separator')
             li
               a(data-toggle='modal', data-target='#tutorial', href='#tutorial') Tutorial
-        li
-          a(data-toggle='modal', data-target='#readme', href='#readme') About
+            li
+              a(data-toggle='modal', data-target='#instr', href='#instr') Instrument
+            li
+              a#win_btn New Window
+            li.divider(role='separator')  
+            li
+              a(data-toggle='modal', data-target='#readme', href='#readme') About
+        li.dropdown
+          a.dropdown-toggle(data-toggle='dropdown', role='button', aria-haspopup='true', aria-expanded='false') Console
+            span.caret
+          ul.list-group.dropdown-menu(style='width:320px')
+            li.list-group-item
+              label.label.label-default Result:
+              a#console_result
+            li.list-group-item
+              input#console_panel.form-control(type='text', style='width:280px; height:50px')
+            li.list-group-item#console_eval Run
     // /.navbar-collapse

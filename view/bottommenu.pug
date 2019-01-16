@@ -6,22 +6,17 @@ nav#bottom-menu.navbar.navbar-default.navbar-fixed-bottom
         span.icon-bar
         span.icon-bar
     #bs-example-navbar-collapse-2.collapse.navbar-collapse
-      ul.nav.navbar-nav
-        li.dropdown
-          a.dropdown-toggle(data-toggle='dropdown', role='button', aria-haspopup='true', aria-expanded='false') Console
-            span.caret
-          ul.list-group.dropdown-menu(style='width:320px')
-            li.list-group-item
-              label.label.label-default Result:
-              a#console_result
-            li.list-group-item
-              input#console_panel.form-control(type='text', style='width:280px; height:50px')
-            li.list-group-item#console_eval Run
-      ul.nav.navbar-nav.navbar-right
-        li
-          a(data-toggle='modal', data-target='#tutorial', href='#tutorial') Tutorial
-        li
-          a(data-toggle='modal', data-target='#instr', href='#instr') Instrument
-        li
-          a#win_btn New Window
+      // Player
+      .row
+        .col-sr-1.col-xs-1
+          #play_MIDI.btn.btn-info.btn-block
+            span.glyphicon.glyphicon-play
+        .col-sr-6.col-xs-8
+          progress#midi_progress.progress.hidden.progress-info(max='100', value='0', style='width: 100%;') 
+          input#play_slider.progress(type='range', min='0', max='100', value='0') 
+        .col-sr-3.col-xs-2
+          a.pager
+            span#currentTime 0
+            | /
+            span#endTime 0
     // /.navbar-collapse

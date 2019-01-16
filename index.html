@@ -39,7 +39,7 @@
     <!-- pdf js-->
     <!--script(src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/1.5.314/pdf.js', type='text/javascript')-->
     <!-- fabric canvas-->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/1.6.2/fabric.min.js" type="text/javascript"></script>
+    <!--script(src='https://cdnjs.cloudflare.com/ajax/libs/fabric.js/1.6.2/fabric.min.js', type='text/javascript')-->
     <style type="text/css" media="screen">
       body {
         /* Margin bottom by footer height */
@@ -72,10 +72,10 @@
                 <li><a id="save_mp3">Save MP3</a></li>
                 <li><a id="save_wav">Save WAV</a></li>
                 <li><a id="open_json">Import JSON</a></li>
-                <li><a id="export">Export JSON</a></li>
+                <li><a id="export">Save JSON</a></li>
                 <li class="divider" role="separator"></li>
-                <li><a id="open_img">Open Score Image</a></li>
-                <li><a id="save_score">Save Rendered Score</a></li>
+                <li><a id="open_img">Open Image</a></li>
+                <li><a id="save_score">Save Image</a></li>
               </ul>
             </li>
             <!-- Menu Edit-->
@@ -85,8 +85,8 @@
                 <li><a data-toggle="modal" data-target="#ctrl2" href="#ctrl2">Set Seed From MIDI</a></li>
                 <li><a id="reset_editor">Reset Editor</a></li>
                 <li><a data-toggle="modal" data-target="#ctrl1" href="#ctrl1">Increase Controls</a></li>
-                <li><a id="harmony_absolute">Harmony in Note Name</a></li>
-                <li><a id="harmony_relative">Harmony in Scale Degree</a></li>
+                <li><a id="harmony_absolute">Chords in Note Name</a></li>
+                <li><a id="harmony_relative">Chords in Scale Degree</a></li>
               </ul>
             </li>
             <!-- Menu View-->
@@ -114,24 +114,15 @@
           <ul class="nav navbar-nav navbar-right navbar-inverse">
             <li class="dropdown"><a class="dropdown-toggle" href="#" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Help<span class="caret"></span></a>
               <ul class="dropdown-menu">
-                <li><a href="https://github.com/scoreur/gen">Source Code</a></li>
+                <li><a href="https://github.com/scoreur/gen" target="_blank">Source Code</a></li>
                 <li class="divider" role="separator"></li>
                 <li><a data-toggle="modal" data-target="#tutorial" href="#tutorial">Tutorial</a></li>
+                <li><a data-toggle="modal" data-target="#instr" href="#instr">Instrument</a></li>
+                <li><a id="win_btn">New Window</a></li>
+                <li class="divider" role="separator"> </li>
+                <li><a data-toggle="modal" data-target="#readme" href="#readme">About</a></li>
               </ul>
             </li>
-            <li><a data-toggle="modal" data-target="#readme" href="#readme">About</a></li>
-          </ul>
-        </div>
-        <!-- /.navbar-collapse-->
-      </div>
-    </nav>
-    <nav class="navbar navbar-default navbar-fixed-bottom" id="bottom-menu">
-      <div class="container-fluid">
-        <div class="navbar-header">
-          <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#bs-example-navbar-collapse-2" aria-expanded="false"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span></button>
-        </div>
-        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-2">
-          <ul class="nav navbar-nav">
             <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Console<span class="caret"></span></a>
               <ul class="list-group dropdown-menu" style="width:320px">
                 <li class="list-group-item">
@@ -144,11 +135,27 @@
               </ul>
             </li>
           </ul>
-          <ul class="nav navbar-nav navbar-right">
-            <li><a data-toggle="modal" data-target="#tutorial" href="#tutorial">Tutorial</a></li>
-            <li><a data-toggle="modal" data-target="#instr" href="#instr">Instrument</a></li>
-            <li><a id="win_btn">New Window</a></li>
-          </ul>
+        </div>
+        <!-- /.navbar-collapse-->
+      </div>
+    </nav>
+    <nav class="navbar navbar-default navbar-fixed-bottom" id="bottom-menu">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#bs-example-navbar-collapse-2" aria-expanded="false"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span></button>
+        </div>
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-2">
+          <!-- Player-->
+          <div class="row">
+            <div class="col-sr-1 col-xs-1">
+              <div class="btn btn-info btn-block" id="play_MIDI"><span class="glyphicon glyphicon-play"></span></div>
+            </div>
+            <div class="col-sr-6 col-xs-8">
+              <progress class="progress hidden progress-info" id="midi_progress" max="100" value="0" style="width: 100%;"> </progress>
+              <input class="progress" id="play_slider" type="range" min="0" max="100" value="0">
+            </div>
+            <div class="col-sr-3 col-xs-2"><a class="pager"><span id="currentTime">0</span>/<span id="endTime">0</span></a></div>
+          </div>
         </div>
         <!-- /.navbar-collapse-->
       </div>
@@ -660,17 +667,6 @@ You need to specify the following entry:</p>
           </div>
         </div>
         <div class="col-sr-1 sr-only"></div>
-      </div>
-      <!-- Player-->
-      <div class="row">
-        <div class="col-sr-1 col-xs-1">
-          <div class="btn btn-info btn-block" id="play_MIDI"><span class="glyphicon glyphicon-play"></span></div>
-        </div>
-        <div class="col-sr-6 col-xs-8">
-          <progress class="progress hidden progress-info" id="midi_progress" max="100" value="0" style="width: 100%;"> </progress>
-          <input class="progress" id="play_slider" type="range" min="0" max="100" value="0">
-        </div>
-        <div class="col-sr-3 col-xs-2"><a class="pager"><span id="currentTime">0</span>/<span id="endTime">0</span></a></div>
       </div>
       <!-- Editor 1-->
       <div class="row">
