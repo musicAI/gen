@@ -1,5 +1,7 @@
 {
   "_coffee": [
+    "score_parser",
+    "schema_parser",
     "musical",
     "ScoreObj",
     "Generator",
