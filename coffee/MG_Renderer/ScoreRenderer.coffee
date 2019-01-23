@@ -1,13 +1,24 @@
 MG = @MG || (module? && require? && require('./musical').MG ) || {}
 
+
+clearCanvas = (c)->
+  c.getContext('2d').clearRect 0,0, c.width,c.height
+  return
+
 class @ScoreRenderer
   constructor: (c, p)->
-    @c = document.getElementById c
-    @real_ctx = @c.getContext('2d')
+    @real_canvas = document.getElementById c
+    @real_canvas.width = 1000
+    @real_canvas.height = 800
+    @real_ctx = @real_canvas.getContext('2d')
     @hidden_canvas = document.createElement('canvas')
-    @r = new Vex.Flow.Renderer @hidden_canvas, Vex.Flow.Renderer.Backends.CANVAS
-    @ctx = @r.getContext()
+    @hidden_canvas.width = 1000
+    @hidden_canvas.height = 800
+    @vfr = new Vex.Flow.Renderer @hidden_canvas, Vex.Flow.Renderer.Backends.CANVAS
+    @vfr.resize(1000,800)
+    @vf_ctx = @vfr.getContext()
     @geo =
+      page_width: 1000, page_height: 800,
       system_width: 900, system_height: 80, system_interval: 50,
       left_padding: 30, top_padding: 70, reserved_width: 55
     @layout =
@@ -38,12 +49,12 @@ class @ScoreRenderer
       @renderPage(@currentPage-1)
 
 
-    if p?
-      @p = new fabric.StaticCanvas(p, {
-        width: $('.canvas-wrapper').width(),
-        height: $('.canvas-wrapper').width() * 2,
-        backgroundColor: 'rgba(240,250,240, 5)'
-      })
+    # if p?
+    #   @p = new fabric.StaticCanvas(p, {
+    #     width: $('.canvas-wrapper').width(),
+    #     height: $('.canvas-wrapper').width() * 2,
+    #     backgroundColor: 'rgba(240,250,240, 5)'
+    #   })
 
   # m-th measure
   newStave: (m, clef)->
@@ -53,7 +64,7 @@ class @ScoreRenderer
     w = @geo.system_width // @layout.measure_per_system
     x = @geo.left_padding + i * w
     y = @geo.top_padding + j * (@geo.system_height + @geo.system_interval)
-    # console.log(x,y,w)
+    console.log(x,y,w)
     if i == 0
       return new Vex.Flow.Stave(x, y, w).addClef(clef)
     else
@@ -119,20 +130,20 @@ class @ScoreRenderer
     if num < 0 || num >= @numPage
       return
     if @pages[num]?
-      @real_ctx.clearRect 0,0, @c.width,@c.height
+      clearCanvas(@real_canvas)
       @real_ctx.drawImage @pages[num], 0, 0
       @UI.page_num.html(num+1)
       return
     console.log 'render page', num+1
-    @r.resize(1000,800)
-    @c.width = 1000
-    @c.height = 800
+    
     start = @layout.measure_per_system * @layout.system_per_page
     last = (num+1) * start
     start = last - start
     if last >= @measures.length
       last = @measures.length
-    ctx = @ctx
+    ctx = @vf_ctx
+    clearCanvas(@hidden_canvas)
+  
     for i in [start...last] by 1
       e = @measures[i]
       #Format and justify the notes
@@ -143,15 +154,13 @@ class @ScoreRenderer
       e.voices.forEach (v) -> v.draw(ctx, e.stave)
       e.beams.forEach (v)-> v.setContext(ctx).draw()
       e.ties.forEach (v)-> v.setContext(ctx).draw()
-    c = document.createElement('canvas')
-    c.width = 1000
-    c.height = 800
+    @pages[num] = c = document.createElement('canvas')
+    c.width = @geo.page_width
+    c.height = @geo.page_height
     c.getContext('2d').drawImage @hidden_canvas, 0, 0
-    @pages[num] = c
+    @renderPage(num)
+    return
 
-    @real_ctx.clearRect 0,0, @c.width,@c.height
-    @real_ctx.drawImage @pages[num], 0, 0
-    @UI.page_num.html(num+1)
 
 
   render: (s)->

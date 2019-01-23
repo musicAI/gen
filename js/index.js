@@ -1,17 +1,5 @@
 
-function load_local_midi(file, onsuccess){
-	if(file.type != 'audio/midi'){
-		console.log('file type cannot be ' + file.type);
-		return false;
-	}
-	var reader = new FileReader();
-	reader.onload = function(e){
-		onsuccess && onsuccess(e.target.result);
-	};
-	reader.readAsDataURL(file);
-	return true;
 
-}
 function load_json(file, onsuccess){
 	var reader = new FileReader();
 	reader.onload = function(e){
@@ -279,13 +267,7 @@ var click_event_list = {
 		});
 
 	},
-	'eg_load_midi':function(){
-		MIDI.Player.loadFile('static/sample.mid', function(){
-			$('#endTime').html((MIDI.Player.endTime/1000)>>>0);
-			$.notify('sample MIDI loaded!', 'success');
-		})
-
-	},
+	
 	'play_MIDI':function(){
 		if(!MIDI.Player.playing){
             MIDI.Player.start();
@@ -468,14 +450,7 @@ var click_event_list = {
 };
 
 var file_open_handlers = {
-	'open_midi': function(evt){
-		load_local_midi(evt.target.files[0], function(res){
-			MIDI.Player.loadFile(res, function(){
-				$('#endTime').html((MIDI.Player.endTime/1000)>>>0);
-				$('#play_slider').val(''+0);
-			});
-		});
-	},
+	
 	'open_img': function(evt){
 	    var reader = new FileReader();
 	    reader.onload = function(e){
